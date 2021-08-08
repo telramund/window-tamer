@@ -310,12 +310,15 @@ to buffer name(s) matching a regular expression."
 (defadvice switch-to-buffer (after window-tamer/switch-to-buffer-advice)
   "Choose window based on major mode when switching to a buffer"
   (let* ((buffer (get-buffer (ad-get-arg 0)))
+         (force-same-window (ad-get-arg 2))
          (chosen-window (window-tamer/get-buffer-window buffer)))
-    (when chosen-window
-      (window-tamer/message "Window chosen based on buffer: %S" chosen-window)
-      (bury-buffer)
-      (select-window chosen-window)
-      (display-buffer-same-window buffer '()))))
+    (if force-same-window
+        (display-buffer-same-window buffer '())
+      (when chosen-window
+        (window-tamer/message "Window chosen based on buffer: %S" chosen-window)
+        (bury-buffer)
+        (select-window chosen-window)
+        (display-buffer-same-window buffer '())))))
 
 (provide 'window-tamer)
 ;;; window-tamer.el ends here
